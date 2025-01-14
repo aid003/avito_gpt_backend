@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Projects {
+  id                    Int        @id @default(autoincrement())
+  name                  String
+  description           String?    @default("Это короткое описание вашего проекта.")
+  status                Boolean    @default(true)
+
+  fallbackMessage       String?    @default("Пока не могу глянуть, давай чуть позже отвечу.")
+
+  gptModel              String     @default("gpt-3.5-turbo-0125")
+  gptTemperature        Float      @default(1.0) 
+  gptTop_p              Float      @default(1.0)
+  openaiApiToken        String     @default("default")
+  prompts               Prompts[]
+
+  isUsingRag            Boolean    @default(true)
+  embeddingModel        String     @default("text-embedding-3-small")
+  modelSearch           String     @default("similarity") 
+  vectorCollections     VectorCollections[]
+
+  tgBusinessConnectionId String?   @unique
+
+  avitoClientId          String?   @unique
+  avitoClientSecret      String?   @unique
+  avitoUserId            String?   @unique
+  
+  users                  Users[]
+  timeCreated            DateTime  @default(now())
+}
+
+model Users {
+  userId         Int     @id @default(autoincrement())
+  name           String  @default("Не указано")
+  sourceCreation String  @default("Не указано")
+
+  avitoId   String? 
+  tgId      String? @unique
+  otherId   String? 
+  
+  projectId   Int
+  project     Projects @relation(fields: [projectId], references: [id])
+  chat        Chats[]
+  timeCreated DateTime @default(now())
+}
+
+model VectorCollections {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  type        String     @default("default")
+  timestamp   DateTime   @default(now())
+  project     Projects   @relation(fields: [projectId], references: [id])
+  projectId    Int
+}
+
+
+model Prompts {
+  id        Int        @id @default(autoincrement())
+  name      String    
+  type      String     @default("default")
+  content   String
+  timestamp DateTime   @default(now())
+  project   Projects   @relation(fields: [projectId], references: [id])
+  projectId Int
+}
+
+
+model Chats {
+  chatId    Int     @id @default(autoincrement())
+  role      String?  
+  content   String?
+  timestamp DateTime @default(now())
+  user      Users   @relation(fields: [userId], references: [userId])
+  userId    Int
+}
+
+model PropertyMeta {
+  id           Int     @id @default(autoincrement())
+  name         String 
+  key          String  
+  type         String  
+  isEditable   Boolean @default(true)
+}
