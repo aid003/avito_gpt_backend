@@ -20,6 +20,7 @@ import { uploadJsonDataToVectorCollections } from "./Distributor/Middleware/Uplo
 import { weaviateDistribution } from "./Distributor/Weaviate/weaviateDistributor.service.js";
 import { updateProperty } from "./Api/Project/UpdateProperty.js";
 import { updatePrompt } from "./Api/Project/UpdatePrompt.js";
+import { deletePrompt } from "./Api/Project/DeletePrompt.js";
 
 const upload = multer({ dest: "uploads/" });
 export const prisma = new PrismaClient();
@@ -44,6 +45,7 @@ async function main() {
     app.use("/api/update-prompt/", updatePrompt);
 
     app.use("/api/delete-vector-collection/", deleteVectorCollection);
+    app.use("/api/delete-prompt/", deletePrompt);
 
     app.post("/api/upload/", upload.single("file"), (req, res) => {
       if (!req.file) {
@@ -61,8 +63,8 @@ async function main() {
     // Блок инитиализации клиентов
     // await initializationGptClient(process.env.IS_USING_PROXY);
     // await initializationWeaviteClient(process.env.IS_USING_WEAVIATE_SANDBOX);
-    await initializationTgBot(process.env.TG_BOT_API_KEY);
-    await distributor();
+    // await initializationTgBot(process.env.TG_BOT_API_KEY);
+    // await distributor();
 
     app.listen(
       process.env.PORT,
